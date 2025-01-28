@@ -1,14 +1,17 @@
 from typing import AsyncGenerator
+from datetime import datetime
 
-from sqlalchemy.ext.asyncio import (AsyncSession, async_sessionmaker,
+from sqlalchemy import func
+from sqlalchemy.ext.asyncio import (AsyncSession, AsyncAttrs, async_sessionmaker,
                                     create_async_engine)
-from sqlalchemy.orm import DeclarativeBase
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 from app.core.config import setting
 
 
-class Base(DeclarativeBase):
-    pass
+class Base(AsyncAttrs, DeclarativeBase):
+    created_at: Mapped[datetime] = mapped_column(server_default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(server_default=func.now(), onupdate=func.now())
 
 
 engine = create_async_engine(
