@@ -1,11 +1,13 @@
 import logging
-
 import uvicorn
-from fastapi import FastAPI, Request
 from contextlib import asynccontextmanager
+from aiogram.types import Update
+from fastapi import FastAPI, Request
 
-from app.core.config import configure_logging
-from your_bot_module import bot, dp, settings  # Импортируем необходимые компоненты бота
+from app.bot.create_bot import bot, dp, stop_bot, start_bot
+from app.bot.handlers.user_router import user_router
+from app.core.config import setting, configure_logging
+
 
 configure_logging(logging.INFO)
 logger = logging.getLogger(__name__)
@@ -13,32 +15,30 @@ logger = logging.getLogger(__name__)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Код, выполняющийся при запуске приложения
-    webhook_url = settings.get_webhook_url()  # Получаем URL вебхука
-    await bot.set_webhook(
-        url=webhook_url,
-        allowed_updates=dp.resolve_used_update_types(),
-        drop_pending_updates=True
-    )
-    logger.info(f"Webhook set to {webhook_url}")
-    yield  # Приложение работает
-    # Код, выполняющийся при завершении работы приложения
+    logging.info("Starting bot setup...")
+    dp.include_router(user_router)
+    await start_bot()
+    webhook_url = settings.get_webhook_url()
+    await bot.set_webhook(url=webhook_url,
+                          allowed_updates=dp.resolve_used_update_types(),
+                          drop_pending_updates=True)
+    logging.info(f"Webhook set to {webhook_url}")
+    yield
+    logging.info("Shutting down bot...")
     await bot.delete_webhook()
-    logger.info("Webhook removed")
+    await stop_bot()
+    logging.info("Webhook deleted")
 
 
-# Инициализация FastAPI с методом жизненного цикла
 app = FastAPI(lifespan=lifespan)
 
 
-# Маршрут для обработки вебхуков
 @app.post("/webhook")
 async def webhook(request: Request) -> None:
-    logger.info("Received webhook request")
-    update = await request.json()  # Получаем данные из запроса
-    # Обрабатываем обновление через диспетчер (dp) и передаем в бот
+    logging.info("Received webhook request")
+    update = Update.model_validate(await request.json(), context={"bot": bot})
     await dp.feed_update(bot, update)
-    logger.info("Update processed")
+    logging.info("Update processed")
 
 
 if __name__ == "__main__":
