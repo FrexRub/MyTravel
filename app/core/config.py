@@ -24,9 +24,9 @@ class SettingConn(BaseSettings):
     postgres_host: str
     postgres_port: int
 
-    bot_token: str
-    base_site: str
-    admin_id: str
+    BOT_TOKEN: str
+    BASE_SITE: str
+    ADMIN_ID: str
 
     model_config = SettingsConfigDict(env_file=BASE_DIR / ".env")
 
@@ -46,7 +46,7 @@ class Setting(BaseSettings):
 
     def get_webhook_url(self) -> str:
         """Возвращает URL вебхука с кодированием специальных символов."""
-        return f"{setting_conn.base_site}/webhook"
+        return f"{setting_conn.BASE_SITE}/webhook"
 
 
 setting = Setting()

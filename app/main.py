@@ -18,7 +18,7 @@ async def lifespan(app: FastAPI):
     logging.info("Starting bot setup...")
     dp.include_router(user_router)
     await start_bot()
-    webhook_url = settings.get_webhook_url()
+    webhook_url = setting.get_webhook_url()
     await bot.set_webhook(
         url=webhook_url,
         allowed_updates=dp.resolve_used_update_types(),
