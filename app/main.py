@@ -3,10 +3,12 @@ import uvicorn
 from contextlib import asynccontextmanager
 from aiogram.types import Update
 from fastapi import FastAPI, Request
+from fastapi.staticfiles import StaticFiles
 
 from app.bot.create_bot import bot, dp, stop_bot, start_bot
 from app.bot.handlers.user_router import user_router
 from app.core.config import setting, configure_logging
+from app.pages.router import router as router_pages
 
 
 configure_logging(logging.INFO)
@@ -33,6 +35,8 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(lifespan=lifespan)
+app.mount("/static", StaticFiles(directory="static"), name="static")
+app.include_router(router_pages)
 
 
 @app.post("/webhook")
