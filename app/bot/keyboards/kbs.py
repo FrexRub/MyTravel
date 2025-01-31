@@ -13,7 +13,7 @@ def main_keyboard(user_id: int, first_name: str) -> ReplyKeyboardMarkup:
     )
     kb.button(text="🌐 Мои заявки", web_app=WebAppInfo(url=url_applications))
     kb.button(text="📝 Оставить заявку", web_app=WebAppInfo(url=url_add_application))
-    kb.button(text="ℹ️ О нас")
+    kb.button(text="ℹ️ О боте")
     if user_id == setting_conn.ADMIN_ID:
         kb.button(text="🔑 Админ панель")
     kb.adjust(1)

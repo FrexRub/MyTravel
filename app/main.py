@@ -1,4 +1,5 @@
 import logging
+import asyncio
 import uvicorn
 from contextlib import asynccontextmanager
 from aiogram.types import Update
@@ -47,5 +48,13 @@ async def webhook(request: Request) -> None:
     logging.info("Update processed")
 
 
+async def main_boot():
+    # запуск бота в режиме пулинга(стандартном)
+    dp.include_router(user_router)
+    await bot.delete_webhook(drop_pending_updates=True)
+    await dp.start_polling(bot)
+
+
 if __name__ == "__main__":
     uvicorn.run("main:app")
+    # asyncio.run(main_boot())

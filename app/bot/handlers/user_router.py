@@ -39,7 +39,7 @@ async def cmd_back_home(message: Message) -> None:
     await greet_user(message, is_new_user=False)
 
 
-@user_router.message(F.text == "ℹ️ О нас")
+@user_router.message(F.text == "ℹ️ О боте")
 async def about_us(message: Message):
     kb = app_keyboard(
         user_id=message.from_user.id, first_name=message.from_user.first_name
